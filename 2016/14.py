@@ -16,7 +16,7 @@ def part1(scheme: str):
     return scheme
 
 def part2(scheme: list):
-    return 0
+    return 4
 
 class Tests(unittest.TestCase):
 
