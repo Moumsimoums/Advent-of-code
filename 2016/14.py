@@ -24,35 +24,32 @@ def hasThisFiveConsecutiveChars(stringInput: str, expectedChar: str):
     if expectedChar * 5 in stringInput:
         return True
     else:
-        return False 
+        return False
+
+def generateHashDict(stringInput: str, iterations: int, limit: int):
+    return {k:calculateHash(stringInput+str(k), iterations) for k in range(limit)}
 
 
 def part1(scheme: str):
-    comp, indexes, hashes = 0, list(), dict()
+    comp, indexes, hashes = 0, list(), generateHashDict(scheme, 1, 30000)
     while len(indexes) != 64:
-        if comp not in hashes:
-            hashes[comp] = calculateHash(scheme+str(comp), 1)
         triplet = threeConsecutiveChars(hashes[comp])
         if triplet:
             for secondComp in range(comp+1, comp+1001):
-                if secondComp not in hashes:
-                    hashes[secondComp] = calculateHash(scheme+str(secondComp), 1)
                 if hasThisFiveConsecutiveChars(hashes[secondComp], triplet):
                     indexes.append(comp)
-                    print(len(indexes))
                     break
         comp += 1
     return indexes[-1]
 
 def part2(scheme: list):
-    comp, indexes = 0, list()
+    comp, indexes, hashes = 0, list(), generateHashDict(scheme, 2017, 30000)
     while len(indexes) != 64:
-        triplet = threeConsecutiveChars(calculateHash(scheme+str(comp), 2016))
+        triplet = threeConsecutiveChars(hashes[comp])
         if triplet:
             for secondComp in range(comp+1, comp+1001):
-                if hasThisFiveConsecutiveChars(calculateHash(scheme+str(secondComp), 2016), triplet):
+                if hasThisFiveConsecutiveChars(hashes[secondComp], triplet):
                     indexes.append(comp)
-                    print(len(indexes))
                     break
         comp += 1
     return indexes[-1]
@@ -64,7 +61,7 @@ class Tests(unittest.TestCase):
         self.assertEqual(part2("abc"), 22551)
 
 if __name__ == "__main__":
-    unittest.main()
+    # unittest.main()
     scheme = readFile()
     p1 = part1(scheme)
     print(f"Part 1: {p1}")
