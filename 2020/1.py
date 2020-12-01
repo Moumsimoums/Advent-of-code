@@ -1,4 +1,5 @@
 from time import time
+from itertools import combinations
 import unittest
 a = time()
 
@@ -7,23 +8,25 @@ def readFile():
     with open(__file__[:-3] + "-" + "input.txt", "r") as f:
         return [int(i.strip()) for i in f.readlines()]
 
-            
+
 def part1(scheme: list):
-    sumGoal, tempSum = 2020, False
-    while not tempSum:
-        currentNumber = scheme.pop()
-        if sumGoal - currentNumber in scheme:
-            tempSum = True
-    return currentNumber * (sumGoal - currentNumber)
+    for couple in combinations(scheme, 2):
+        if sum(couple) == 2020:
+            return couple[0]*couple[1]
+
 
 def part2(scheme: list):
-    return 0
+    for couple in combinations(scheme, 2):
+        if sum(couple) < 2020:
+            if 2020 - sum(couple) in scheme and 2020 - sum(couple) not in couple:
+                return couple[0]*couple[1]*(2020 - sum(couple))
 
 class Tests(unittest.TestCase):
 
     def testP1(self):
         testInput = [1721,979,366,299,675,1456]
         self.assertEqual(part1(testInput), 514579)
+        self.assertEqual(part2(testInput), 241861950)
 
 
 if __name__ == "__main__":
