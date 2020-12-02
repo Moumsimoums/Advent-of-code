@@ -19,17 +19,11 @@ def isValidPasswordP1(instruction: str):
     occurenciesRange, charToCount, password = getPasswordInfo(instruction, 1)
     if password.count(charToCount) in occurenciesRange:
         return True
-    else:
-        return False
-
 
 def isValidPasswordP2(instruction: str):
     occurenciesRange, charToFind, password = getPasswordInfo(instruction, 2)
     if (password[occurenciesRange[0]] == charToFind and password[occurenciesRange[1]] != charToFind) or (password[occurenciesRange[0]] != charToFind and password[occurenciesRange[1]] == charToFind):
         return True
-    else:
-        return False
-
 
 def part1(scheme: list):
     validPasswordsAmount = 0
