@@ -24,6 +24,10 @@ class Tests(unittest.TestCase):
 
 if __name__ == "__main__":
     # unittest.main()
-    print(f"The answer is {}")
+    gen, res, prime = gen_primes(), 0, 0
+    while prime < 2_000_000:
+        res += prime
+        prime = next(gen)
+    print(f"The answer is {res}")
     print(time()-a)
 
