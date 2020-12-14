@@ -10,23 +10,25 @@ def readFile():
         busList = busList.split(',')
         return arrivalTime, busList
 
-def findGapBetweenTwoMaxes(max1: int, max2: int, max3: int, gap1: int, gap2: int, gap3: int):
-    m, n, p, found = 1, 1, 1, 0
+def findGapBetweenTwoMaxes(maxes: list, gaps: list):
+    coeffs, found = {k:1 for k in range(len(maxes))}, 0
     while True:
-        if max1*m - max2*n == gap1 - gap2:
-            if (max1*m - gap1 + gap3) % max3 == 0:
+        if maxes[0]*coeffs[0] - maxes[1]*coeffs[1] == gaps[0] - gaps[1]:
+            conditions = [((maxes[0]*coeffs[0] - gaps[0] + gaps[it]) % maxes[it] == 0) for it in range(2,len(maxes))]
+            if False not in conditions:
                 found += 1
-                p = (max1*m - gap1 + gap3) // max3 + 1                 
+                for it in range(2,len(maxes)):
+                    coeffs[it] = (maxes[0]*coeffs[0] - gaps[0] + gaps[it]) // maxes[it] + 1         
                 if found == 1:
-                    found1 = max1*m
+                    found1 = maxes[0]*coeffs[0]
                 if found == 2:
-                    return max1*m - found1, found1
-            m += 1
-            n += 1
-        elif max1*m - max2*n > gap1 - gap2:
-            n += 1 
+                    return maxes[0]*coeffs[0] - found1, found1
+            coeffs[0] += 1
+            coeffs[1] += 1
+        elif maxes[0]*coeffs[0] - maxes[1]*coeffs[1] > gaps[0] - gaps[1]:
+            coeffs[1] += 1 
         else:
-            m += 1
+            coeffs[0] += 1
 
             
 def part1(arrivalTime: int, busList: list):
@@ -40,23 +42,24 @@ def part1(arrivalTime: int, busList: list):
 def part2(busList: list):
     orderBusDict = {int(v):k for k, v in enumerate(busList) if v.isdigit()}
     sortedBusIds = sorted(orderBusDict.keys(), reverse=True)
-    max1, max2, max3 = sortedBusIds[:3]
-    gap1 = orderBusDict[max1]
-    it, start = findGapBetweenTwoMaxes(max1, max2, max3, gap1, orderBusDict[max2], orderBusDict[max3])
-    del orderBusDict[max1]
-    del orderBusDict[max2]
-    del orderBusDict[max3]
+    init = 4
+    maxes = sortedBusIds[:init]
+    gaps = [orderBusDict[elem] for elem in maxes]
+    gaps[0] = orderBusDict[maxes[0]]
+    it, start = findGapBetweenTwoMaxes(maxes, gaps)
+    for elem in maxes:
+        del orderBusDict[elem]
+
     res = False
     while not res:
-        print(start)
         for busId in orderBusDict:
-            if (start - gap1 + orderBusDict[busId]) % busId == 0:
+            if (start - gaps[0] + orderBusDict[busId]) % busId == 0:
                 res = True
             else:
                 res = False
                 break
         if res:
-            return start - gap1
+            return start - gaps[0]
         else:
             start += it
 
