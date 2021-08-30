@@ -1,6 +1,6 @@
 from time import time
-import math
 import unittest
+import math
 a = time()
 
 def gen_primes():
@@ -19,7 +19,7 @@ def gen_primes():
 
 def gen_divisors(n):
     large_divisors = []
-    for i in xrange(1, int(math.sqrt(n) + 1)):
+    for i in range(1, int(math.sqrt(n) + 1)):
         if n % i == 0:
             yield i
             if i*i != n:
@@ -34,7 +34,6 @@ def get_divisors_amount(num):
             count += 2
     return count
 
-
 class Tests(unittest.TestCase):
 
     def test(self):
@@ -43,6 +42,10 @@ class Tests(unittest.TestCase):
 
 if __name__ == "__main__":
     # unittest.main()
-    print(f"The answer is {}")
+    it,triangle_number  = 1, 1
+    while get_divisors_amount(triangle_number) < 499:
+        it += 1
+        triangle_number += it
+    print(f"The answer is {triangle_number}")
     print(time()-a)
 
