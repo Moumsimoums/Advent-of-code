@@ -30,7 +30,6 @@ def part1(scheme: list):
     return sum(len(set(elem.replace('-', ''))) for elem in scheme)
 
 def part2(scheme: list):
-    # return [countSimilarities(elem[:-1].split('-')) for elem in scheme]
     return sum([len(countSimilarities(elem[:-1].split('-'))) for elem in scheme])
 
 class Tests(unittest.TestCase):
