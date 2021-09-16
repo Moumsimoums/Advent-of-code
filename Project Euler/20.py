@@ -1,5 +1,5 @@
 from time import time
-from math import inf, sqrt
+from math import inf, factorial, sqrt
 from collections import deque, defaultdict
 import unittest
 a = time()
@@ -96,6 +96,7 @@ class Tests(unittest.TestCase):
 
 if __name__ == "__main__":
     # unittest.main()
-    print(f"The answer is {}")
+    res = sum(int(elem) for elem in str(factorial(100)))
+    print(f"The answer is {res}")
     print(time()-a)
 
