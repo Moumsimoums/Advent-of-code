@@ -3,29 +3,6 @@ import unittest
 import math
 a = time()
 
-def gen_primes():
-    D = {}
-    q = 2
-    
-    while True:
-        if q not in D:
-            yield q
-            D[q * q] = [q]
-        else:
-            for p in D[q]:
-                D.setdefault(p + q, []).append(p)
-            del D[q]       
-        q += 1
-
-def gen_divisors(n):
-    large_divisors = []
-    for i in range(1, int(math.sqrt(n) + 1)):
-        if n % i == 0:
-            yield i
-            if i*i != n:
-                large_divisors.append(n / i)
-    for divisor in reversed(large_divisors):
-        yield divisor
 
 def get_divisors_amount(num):
     count = 0
