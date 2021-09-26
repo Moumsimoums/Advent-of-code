@@ -75,8 +75,8 @@ def gen_divisors(n):
     for i in range(1, int(sqrt(n) + 1)):
         if n % i == 0:
             yield i
-            if i*i != n:
-                large_divisors.append(n / i)
+            if i*i != n and i != 1:
+                large_divisors.append(int(n / i))
     for divisor in reversed(large_divisors):
         yield divisor
 

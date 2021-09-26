@@ -129,5 +129,5 @@ def run(lines, part2=False):
     return regs["a"]
 
 
-print("part 1:", run(readFile()[:]))
-print("part 2:", run(readFile()[:], part2=True))
+print("Part 1:", run(readFile()[:]))
+print("Part 2:", run(readFile()[:], part2=True))
