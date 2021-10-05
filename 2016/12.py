@@ -8,43 +8,41 @@ def readFile():
     with open(__file__[:-3] + "-" + "input.txt", "r") as f:
         return [i.strip() for i in f.readlines()]
 
-def treatInstruction(registers, indix, scheme):
-    instruction = scheme[indix].split()
-    if instruction[0] == "cpy":
-        if instruction[1].isdigit():
-            registers[instruction[2]] = int(instruction[1])
-        else:
-            registers[instruction[2]] = registers[instruction[1]]
-        indix += 1
-    elif instruction[0] == "inc":
-        registers[instruction[1]] += 1
-        indix += 1
-    elif instruction[0] == "dec":
-        registers[instruction[1]] -= 1
-        indix += 1
-    elif instruction[0] == "jnz":
-        if instruction[1].isdigit() and instruction[1] != '0':
-            indix += int(instruction[2])
-        elif not instruction[1].isdigit() and registers[instruction[1]] != 0:
-            indix += int(instruction[2])
-        else:
-            indix += 1
-    return registers, indix
-            
-def part1(scheme: list):
-    indix = 0
-    registers = defaultdict(int)
-    while indix < len(scheme):
-        registers, indix = treatInstruction(registers, indix, scheme)
-    return registers['a']
+def is_num(s: str):
+    try:
+        int(s)
+    except:
+        return False
+    return True
 
-def part2(scheme: list):
-    indix = 0
-    registers = defaultdict(int)
-    registers['c'] = 1
-    while indix < len(scheme):
-        registers, indix = treatInstruction(registers, indix, scheme)
-    return registers['a']
+def getval(regs: dict, x: str):
+    if is_num(x):
+        return int(x)
+    else:
+        return regs[x]
+            
+def part1(scheme: list, first_input: int):
+    it, register = 0, {'a': 0, 'b': 0, 'c': first_input, 'd': 0}
+    while it in range(len(scheme)):
+        instruction = scheme[it].split()
+        if instruction[0] == "cpy":
+            val_to_copy = getval(register, instruction[1])
+            register[instruction[2]] = val_to_copy
+            it += 1
+        elif instruction[0] == "inc":
+            register[instruction[1]] += 1
+            it += 1
+        elif instruction[0] == "dec":
+            register[instruction[1]] -= 1
+            it += 1
+        elif instruction[0] == "jnz":
+            val_to_test, val_to_jump = getval(register, instruction[1]), getval(register, instruction[2])
+            if val_to_test:
+                it += val_to_jump
+            else:
+                it += 1
+
+    return register['a']
 
 class Tests(unittest.TestCase):
 
@@ -55,9 +53,9 @@ class Tests(unittest.TestCase):
 if __name__ == "__main__":
     # unittest.main()
     scheme = readFile()
-    p1 = part1(scheme)
+    p1 = part1(scheme, 0)
     print(f"Part 1: {p1}")
-    p2 = part2(scheme)
+    p2 = part1(scheme, 1)
     print(f"Part 2: {p2}")
     print(time()-a)
 
