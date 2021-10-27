@@ -66,10 +66,8 @@ def part1(scheme: list, first_input: int):
     return register
 
 def part2(scheme: list, first_input: int):
-    biggest_steps = defaultdict(int)
     it, register = 0, {'a': first_input, 'b': 0, 'c': 0, 'd': 0}
     while it in range(len(scheme)):
-        biggest_steps[it+1] += 1
         instruction = scheme[it].split()
         if instruction[0] == "cpy":
             val_to_copy = getval(register, instruction[1])
@@ -84,18 +82,18 @@ def part2(scheme: list, first_input: int):
         elif instruction[0] == "jnz":
             val_to_test, val_to_jump = getval(register, instruction[1]), getval(register, instruction[2])
             if val_to_test:
-                loop_instructions = scheme[it+val_to_jump:it]
-                loop_moves = [loop_instruction[:3] for loop_instruction in loop_instructions]
-                if instruction[1].isdigit() or any(b in loop_moves for b in ['tgl', 'cpy', 'jnz']): # Si la condition test est un nombre, alors on ne tente pas d'optimiser car les instructions bouclées sont instables dans le temps, idem s'il y a des commandes jnz tgl ou cpy qui ne sont pas linéaires
+                if instruction[1].isdigit(): # Si la condition test est un nombre, alors on ne tente pas d'optimiser car les instructions bouclées sont instables dans le temps
                     it += val_to_jump
-                else: # Sinon, on optimise
-                    # print(instruction, it, register)
-                    modif_unit, test = part2(scheme[it+val_to_jump:it], 0) # On regarde l'effet d'une itération de la boucle
-                    repetitions = - val_to_test // modif_unit[instruction[1]] # On compte le nombre d'itérations de cette boucle
-                    # print(modif_unit, repetitions, register)
-                    register = {k: v + modif_unit[k] * repetitions for k, v in register.items()}
-                    # print(register)
-                    it += 1
+                else:
+                    loop_instructions =  {sub_instruction[-1:]: sub_instruction[:3] for sub_instruction in scheme[it+val_to_jump:it]}
+                    loop_moves = list(loop_instructions.values())
+                    if not any(b in loop_moves for b in ['tgl', 'cpy', 'jnz']): # Cas des boucles linéaires inc dec jnz
+                        repetitions = abs(register[instruction[1]])
+                        for entry, sub_instruction in loop_instructions.items():
+                            register[entry] += (1 if sub_instruction == 'inc' else -1) * repetitions
+                        it += 1
+                    else:
+                        it += val_to_jump
             else:
                 it += 1
         elif instruction[0] == "tgl":
@@ -104,10 +102,8 @@ def part2(scheme: list, first_input: int):
                 scheme[line_to_toggle] = toggle(scheme[line_to_toggle])
             it += 1
 
-        if time() - a > 3:
-            break
 
-    return register, biggest_steps
+    return register
 
 
 class Tests(unittest.TestCase):
@@ -119,10 +115,10 @@ class Tests(unittest.TestCase):
 if __name__ == "__main__":
     # unittest.main()
     scheme = readFile()
-    p1= part1(scheme[:], 7)
+    p1= part2(scheme[:], 7)
     print(f"Part 1: {p1['a']}")
-    p2, test = part2(scheme[:], 12)
-    print(test)
-    print(f"Part 2: {p2['a']}")
+    # p2, test = part2(scheme[:], 12)
+    # print(test)
+    # print(f"Part 2: {p2['a']}")
     print(time()-a)
 
