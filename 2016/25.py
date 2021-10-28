@@ -1,138 +1,131 @@
+from time import time
+from collections import defaultdict
+import unittest
+a = time()
+
 def readFile():
     # On renvoie le fichier d'entrée sous forme d'une liste de string
-    with open("23-" + "input.txt", "r") as f:
+    with open(__file__[:-3] + "-" + "input.txt", "r") as f:
         return [i.strip() for i in f.readlines()]
 
-def is_num(s):
+def is_num(s: str):
     try:
         int(s)
     except:
         return False
     return True
 
-def getval(regs, x):
+def getval(regs: dict, x: str):
     if is_num(x):
         return int(x)
     else:
         return regs[x]
 
-def toggle(tline):
-    sp = tline.split(" ")
-
-    instr = sp[0]
-    if instr == "inc":
+def toggle(instruction: list):
+    sp = instruction.split(" ")
+    move = sp[0]
+    if move == "inc":
         return " ".join(["dec"] + sp[1:])
-    elif instr == "dec" or instr == "tgl":
+    elif move in ["dec", "tgl"]:
         return " ".join(["inc"] + sp[1:])
-    elif instr == "jnz":
+    elif move == "jnz":
         return " ".join(["cpy"] + sp[1:])
-    elif instr == "cpy":
+    elif move == "cpy":
         return " ".join(["jnz"] + sp[1:])
     else:
         assert False
 
-def run(lines, part2=False):
-    pc = 0
-    regs = {"a": 7, "b": 0, "c": 0, "d": 0}
-    if part2:
-        regs["a"] = 12
-
-    while True:
-        # print(pc)
-        if pc >= len(lines):
-            break
-        line = lines[pc]
-
-        # Instruction tracing to find the loop to optimize:
-        #print pc, line
-
-        a, b = line.split(" ", 1)
-
-        if a == "cpy":
-            b, c = b.split(" ")
-            b = getval(regs, b)
-            if c in regs:
-                regs[c] = b
+def part1(scheme: list, first_input: int):
+    it, register = 0, {'a': first_input, 'b': 0, 'c': 0, 'd': 0}
+    while it in range(len(scheme)):
+        instruction = scheme[it].split()
+        if instruction[0] == "cpy":
+            val_to_copy = getval(register, instruction[1])
+            register[instruction[2]] = val_to_copy
+            it += 1
+        elif instruction[0] == "inc":
+            register[instruction[1]] += 1
+            it += 1
+        elif instruction[0] == "dec":
+            register[instruction[1]] -= 1
+            it += 1
+        elif instruction[0] == "jnz":
+            val_to_test, val_to_jump = getval(register, instruction[1]), getval(register, instruction[2])
+            # if instruction[1].isdigit():
+            #     print(instruction[1], register[instruction[2]])
+            if val_to_test:
+                it += val_to_jump
             else:
-                print("invalid")
-            pc += 1
-        elif a == "inc":
-            # if b in regs:
-                # Peephole optimize inc/dec/jnz loops
+                it += 1
+        elif instruction[0] == "tgl":
+            line_to_toggle = it + getval(register, instruction[1])
+            if line_to_toggle in range(len(scheme)):
+                # print(line_to_toggle)
+                scheme[line_to_toggle] = toggle(scheme[line_to_toggle])
+            it += 1
+        elif instruction[0] == "out":
+            print(getval(register, instruction[1]))
+            it += 1
+    return register
 
-                # 4 cpy b c
-                # 5 inc a          <<<< 0
-                # 6 dec c          <<<< +1
-                # 7 jnz c -2       <<<< +2
-                # 8 dec d          <<<< +3
-                # 9 jnz d -5       <<<< +4
-
-                # if pc + 3 < len(lines) and pc - 1 >= 0 and lines[pc-1].startswith("cpy ") and \
-                #     lines[pc+1].startswith("dec") and lines[pc+2].startswith("jnz") and \
-                #     lines[pc+3].startswith("dec") and lines[pc+4].startswith("jnz"):
-
-                #     incop = b
-
-                #     cpysrc, cpydest = lines[pc-1].split(" ")[1:]
-                #     dec1op = lines[pc+1].split(" ")[1]
-                #     jnz1cond, jnz1off = lines[pc+2].split(" ")[1:]
-                #     dec2op = lines[pc+3].split(" ")[1]
-                #     jnz2cond, jnz2off = lines[pc+4].split(" ")[1:]
-
-                #     if cpydest == dec1op and dec1op == jnz1cond and \
-                #         dec2op == jnz2cond and \
-                #         jnz1off == "-2" and jnz2off == "-5":
-                #             # inner loop:
-                #             # incop += cpysrc
-                #             # dec1op <- 0
-
-                #             # outer loop:
-                #             # dec2op times
-
-                #             # net result:  incop += (cpysrc * dec2op)
-                #             # dec1op, dec2op <- 0
-                #             regs[incop] += (getval(regs, cpysrc) * getval(regs, dec2op))
-                #             regs[dec1op] = 0
-                #             regs[dec2op] = 0
-                #             pc += 5
-                #             continue
-
-
-                # regs[b] += 1
-            if b in regs:
-                regs[b] += 1
-            pc += 1
-        elif a == "dec":
-            if b in regs:
-                regs[b] -= 1
-            pc += 1
-        elif a == "jnz":
-            b, c = b.split(" ")
-            b = getval(regs, b)
-            c = getval(regs, c)
-            if b != 0:
-                pc = pc + int(c)
+def part2(scheme: list, first_input: int):
+    it, register = 0, {'a': first_input, 'b': 0, 'c': 0, 'd': 0}
+    while it in range(len(scheme)):
+        instruction = scheme[it].split()
+        if instruction[0] == "cpy":
+            val_to_copy = getval(register, instruction[1])
+            register[instruction[2]] = val_to_copy
+            it += 1
+        elif instruction[0] == "inc":
+            register[instruction[1]] += 1
+            it += 1
+        elif instruction[0] == "dec":
+            register[instruction[1]] -= 1
+            it += 1
+        elif instruction[0] == "jnz":
+            val_to_test, val_to_jump = getval(register, instruction[1]), getval(register, instruction[2])
+            if val_to_test:
+                if instruction[1].isdigit(): # Si la condition test est un nombre, alors on ne tente pas d'optimiser car les instructions bouclées sont instables dans le temps
+                    it += val_to_jump
+                else:
+                    loop_instructions =  {count: sub_instruction.split() for count, sub_instruction in enumerate(scheme[it+val_to_jump:it])}
+                    loop_moves = list(instr[0] for instr in loop_instructions.values())
+                    if not any(b in loop_moves for b in ['tgl', 'cpy', 'jnz']): # Cas des boucles linéaires inc dec jnz
+                        repetitions = abs(register[instruction[1]])
+                        for sub_instruction, entry in loop_instructions.values():
+                            register[entry] += (1 if sub_instruction == 'inc' else -1) * repetitions
+                        it += 1
+                    elif 'tgl' not in loop_moves and loop_moves[0] == 'cpy' and loop_moves[3] == 'jnz' and loop_instructions[0][2] == loop_instructions[3][1] == loop_instructions[2][1]: # Cas des boucles cpy x inc dec x jnz x dec
+                        register[loop_instructions[1][1]] += abs(getval(register, loop_instructions[0][1]) * register[instruction[1]]) * (1 if loop_instructions[1][0] == 'inc' else -1)
+                        register[instruction[1]] = 0
+                        register[loop_instructions[3][1]] = 0
+                        it += 1
+                    else:
+                        it += val_to_jump
             else:
-                pc += 1
-        elif a == "tgl":
-            xr = b
-            x = getval(regs, xr)
-
-            iidx = pc + x
-            #print "tgl", x, iidx
-
-            if iidx >= 0 and iidx < len(lines):
-                tline = lines[iidx]
-                lines[iidx] = toggle(tline)
-                print(lines[iidx], iidx)
-                break
-                #print tline, "->", lines[iidx]
-            pc += 1
-        else:
-            assert False
-
-    return regs["a"]
+                it += 1
+        elif instruction[0] == "tgl":
+            line_to_toggle = it + getval(register, instruction[1])
+            if line_to_toggle in range(len(scheme)):
+                scheme[line_to_toggle] = toggle(scheme[line_to_toggle])
+            it += 1
 
 
-# print("Part 1:", run(readFile()[:]))
-print("Part 2:", run(readFile()[:], part2=True))
+    return register
+
+
+class Tests(unittest.TestCase):
+
+    def testP1(self):
+        pass
+
+
+if __name__ == "__main__":
+    # unittest.main()
+    scheme = readFile()
+    p1= part1(scheme[:], 0)
+    print(f"Part 1: {p1['a']}")
+    # p2 = part2(scheme[:], 12)
+    # print(f"Part 2: {p2['a']}")
+    print(time()-a)
+
