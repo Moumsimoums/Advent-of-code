@@ -56,6 +56,16 @@ def resolution(int_triangle: list):
         comp += 1
     return tree.bestValue, comp
 
+def is_prime(n: int):
+    if n in [2, 3]: 
+        return True
+    if n % 2 == 0 or n < 2: 
+        return False
+    for i in range(3, int(n**0.5)+1, 2):
+        if n % i == 0:
+            return False    
+    return True
+
 def gen_primes():
     D = {}
     q = 2
